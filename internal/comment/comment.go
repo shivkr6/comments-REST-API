@@ -22,10 +22,12 @@ type Comment struct {
 
 type Store interface {
 	GetComment(context.Context, string) (Comment, error)
+	PostComment(context.Context, Comment) (Comment, error)
 }
 
 // Service - struct on which all our
 // logic will be built on top of
+// It will basically have Store=Database because our database implements the Store interface.
 type Service struct {
 	Store Store
 }
@@ -59,6 +61,10 @@ func (s *Service) DeleteComment(ctx context.Context, cmt Comment) error {
 	return ErrNotImplemented
 }
 
-func (s *Service) CreateComment(ctx context.Context, cmt Comment) (Comment, error) {
-	return Comment{}, ErrNotImplemented
+func (s *Service) PostComment(ctx context.Context, cmt Comment) (Comment, error) {
+	insertedCmt, err := s.Store.PostComment(ctx, cmt)
+	if err != nil {
+		return Comment{}, err
+	}
+	return insertedCmt, nil
 }
